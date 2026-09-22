@@ -1,0 +1,25 @@
+import { Router } from 'express';
+import { Role } from '@prisma/client';
+import { login, me, register } from '../controllers/auth.js';
+import { createCategory, createProduct, deleteProduct, getProduct, listCategories, listProducts, updateProduct } from '../controllers/catalog.js';
+import { addToCart, getCart, removeCartItem } from '../controllers/cart.js';
+import { checkout, listOrders, updateOrderStatus } from '../controllers/orders.js';
+import { allowRoles, requireAuth } from '../middleware/auth.js';
+
+export const router = Router();
+router.post('/auth/register', register);
+router.post('/auth/login', login);
+router.get('/auth/me', requireAuth, me);
+router.get('/products', listProducts);
+router.get('/products/:id', getProduct);
+router.post('/products', requireAuth, allowRoles(Role.ADMIN), createProduct);
+router.patch('/products/:id', requireAuth, allowRoles(Role.ADMIN), updateProduct);
+router.delete('/products/:id', requireAuth, allowRoles(Role.ADMIN), deleteProduct);
+router.get('/categories', listCategories);
+router.post('/categories', requireAuth, allowRoles(Role.ADMIN), createCategory);
+router.get('/cart', requireAuth, getCart);
+router.post('/cart', requireAuth, addToCart);
+router.delete('/cart/:id', requireAuth, removeCartItem);
+router.post('/orders/checkout', requireAuth, checkout);
+router.get('/orders', requireAuth, listOrders);
+router.patch('/orders/:id/status', requireAuth, allowRoles(Role.ADMIN), updateOrderStatus);
